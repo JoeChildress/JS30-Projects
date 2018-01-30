@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML5 Canvas</title>
+</head>
+<body>
+<canvas id="draw" width="800" height="800"></canvas>
+<script>
+  const canvas = document.querySelector('#draw');
+  
+  //grab the context of canvas to allow us to draw on it
+  const ctx = canvas.getContext('2d');
+  
+  //match the size of the screen
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  //style the line qualities
+  ctx.strokeStyle = '#BADA55'; //color
+  ctx.lineJoin = 'round'; //joints
+  ctx.lineCap = 'round';  //ends
+  
+  let isDrawing = false; //controls if drawing or not
+  let lastX = 0; //starting cooridnates vars
+  let lastY = 0;
+  let hue = 0; //starting color red
+  let direction = true; //flag for increase or decrease lineWidth
+  
+  function draw(e) {
+
+    if(!isDrawing) return; //stops fn if isDrawing is false
+    
+    ctx.strokeStyle = `hsl( ${hue}, 100%, 50% )`; //change color based on hue #
+    
+    //update hue by 1 to change the color
+    // keep reseting to 360 but not really necessary
+    if ( hue >= 360 ){ 
+      hue = 0 
+    }else{ 
+      hue ++
+    }
+    
+    ctx.beginPath(); // begin drawing the line
+    ctx.moveTo( lastX, lastY ); //starting position for drawing
+    ctx.lineTo( e.offsetX, e.offsetY ); //moves the pen
+    ctx.stroke(); //draws the line
+    
+    //keep lineWidth from 1-300, decreas if over 100
+    if (ctx.lineWidth >=300 || ctx.lineWidth <=1){
+      direction = !direction;
+    }
+    
+    //regulate if increasing or decreasing line width
+    if (direction){
+      ctx.lineWidth++;
+    }else{
+      ctx.lineWidth--;
+    }
+    
+    //reset the coordinate vars with current position 
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+  }
+  
+  canvas.addEventListener('mousedown', (e) => {
+    
+    //allows draw() to start
+    isDrawing = true;
+    
+    //sets the starting coords to current coord when mousedown
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+    
+    //resets the line width to 1 everytime the drawing starts
+    ctx.lineWidth =1;
+  });
+  
+  
+  //start drawing on mouse move if isDrawing = true;
+  canvas.addEventListener('mousemove', draw);
+  
+  // turns off the drawing mode on mouseup
+  canvas.addEventListener('mouseup', () => isDrawing = false); 
+  
+  // turns off the drawing mode on mouseout 
+  canvas.addEventListener('mouseout', () => isDrawing = false);  
+</script>
+
+<style>
+  html, body {
+    margin:0;
+  }
+</style>
+
+</body>
+</html>
